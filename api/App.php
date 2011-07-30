@@ -90,6 +90,8 @@ fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 
     if (!@ldap_bind($ldap, $entries[0]['dn'], $password)) {
 fwrite($log,"ldap_errno = " . print_r(ldap_errno($ldap), TRUE) . "\n");
+    } else {
+fwrite($log,"No Error logged\n");
     }
 
 		
