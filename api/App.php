@@ -36,7 +36,7 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		if(!extension_loaded('ldap'))
 			return false;
 
-$log = fopen("/55_ldap.log", "a");
+$log = fopen("/var/vhosts/servicedesk/wgm55/htdocs/storage/plugins/wgm.ldap/55_ldap.log", "a");
 fwrite($log, "Starting logger\n");
 		
 		$ldap_settings = array(
