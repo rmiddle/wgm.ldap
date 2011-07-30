@@ -35,6 +35,9 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		// Check for extension
 		if(!extension_loaded('ldap'))
 			return false;
+
+$log = fopen("/55_ldap.log", "a");
+fwrite($log, "Starting logger\n");
 		
 		$ldap_settings = array(
 			'host' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_host', ''),
@@ -47,6 +50,7 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 			'field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_firstname', ''),
 			'field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_lastname', ''),
 		);
+fwrite($log, print_r($ldap_settings) . "\n");
 		
 		@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
 		
@@ -65,6 +69,7 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 		@$entries = ldap_get_entries($ldap, $results);
         @ldap_unbind($ldap);
+fwrite($log, print_r($entries) . "\n");
 
 		@$count = intval($entries['count']);
 
@@ -89,6 +94,7 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		$visit = new CerberusVisit();
 		$visit->setWorker($worker);
 		$session->setVisit($visit);
+fwrite($log, "Stopping the logger\n");
 		return true;
 	}
 };
@@ -288,8 +294,6 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			'pub_auth_field_email' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_email',''),
 			'pub_auth_field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_firstname',''),
 			'pub_auth_field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_lastname',''),
-			'pub_auth_field_password' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_password',''),
-			'pub_auth_field_password_type' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_password_type',''),
 		);
 		
 		$tpl->assign('params', $params);
