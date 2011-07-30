@@ -10,5 +10,9 @@
 			<tuv xml:lang="en_US"><seg>LDAP</seg></tuv>
 		</tu>
 		
+		<tu tuid='ldap.common.login'>
+			<tuv xml:lang="en_US"><seg>Login</seg></tuv>
+		</tu>
+		
 	</body>
 </tmx>
