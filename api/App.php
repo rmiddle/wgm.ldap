@@ -36,8 +36,6 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		if(!extension_loaded('ldap'))
 			return false;
 
-$log = fopen("/var/vhosts/servicedesk/wgm55/htdocs/storage/plugins/wgm.ldap/55_ldap.log", "a");
-fwrite($log, "Starting logger\n");
 		
 		$ldap_settings = array(
 			'host' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_host', ''),
@@ -67,8 +65,6 @@ fwrite($log, "Starting logger\n");
 		$query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 		@$entries = ldap_get_entries($ldap, $results);
-fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
-//        @ldap_unbind($ldap);
 
 		@$count = intval($entries['count']);
 
@@ -83,16 +79,13 @@ fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
 		
 		if(null == ($worker = DAO_Worker::get($address->worker_id)))
 			return false;
-fwrite($log,"worker = " . print_r($worker, TRUE) . "\n");
             
 		@$login = ldap_bind($ldap, $entries[0]['dn'], $password);
-fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 
-    if (!@ldap_bind($ldap, $entries[0]['dn'], $password)) {
-fwrite($log,"ldap_errno = " . print_r(ldap_errno($ldap), TRUE) . "\n");
-    } else {
-fwrite($log,"No Error logged\n");
-    }
+        if (!@ldap_bind($ldap, $entries[0]['dn'], $password)) {
+            fwrite($log,"ldap_errno = " . print_r(ldap_errno($ldap), TRUE) . "\n");
+        }
+        @ldap_unbind($ldap);
 
 		
 		if(!$login)
@@ -102,7 +95,6 @@ fwrite($log,"No Error logged\n");
 		$visit = new CerberusVisit();
 		$visit->setWorker($worker);
 		$session->setVisit($visit);
-fwrite($log, "Stopping the logger\n");
 		return true;
 	}
 };
@@ -134,28 +126,19 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession->logout();
 		
 		try {
-			@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+			@$login = DevblocksPlatform::importGPC($_REQUEST['login'],'string','');
 			@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
 			
 			// Check for extension
 			if(!extension_loaded('ldap'))
 				throw new Exception("The authentication server is offline. Please try again later.");
 			
-			if(empty($email))
-				throw new Exception("An email address is required.");
+			if(empty($login))
+				throw new Exception("A login id is required.");
 			
 			if(empty($password))
 				throw new Exception("A password is required.");
 			
-			// Validate email address
-			
-			$valid_email = imap_rfc822_parse_adrlist($email,'host');
-			
-			if(empty($valid_email) || !is_array($valid_email) || empty($valid_email[0]->host) || $valid_email[0]->host=='host')
-				throw new Exception("Please provide a valid email address.");
-			
-			$email = $valid_email[0]->mailbox . '@' . $valid_email[0]->host; 
-
 			// LDAP
 			$ldap_settings = array(
 				'host' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'pub_auth_host', ''),
@@ -178,73 +161,74 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 			
 			@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
-			
+            
 			if(!$login)
 				throw new Exception("The authentication server is offline. Please try again later.");
-			
-			$query = sprintf("(%s=%s)", $ldap_settings['field_email'], $email);
-			@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
-			@$entries = ldap_get_entries($ldap, $results);
-			@$count = intval($entries['count']);
-			
-			if(empty($count))
+                
+            $query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
+            @$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
+            @$entries = ldap_get_entries($ldap, $results);
+    
+            @$count = intval($entries['count']);
+
+            if ($count != 1)
 				throw new Exception("User not found.");
+            
+            $email = $entries[0][$ldap_settings['field_email']][0];
+
+			// Validate email address
+			$valid_email = imap_rfc822_parse_adrlist($email,'host');
 			
-			// MD5, SHA1, plaintext, etc.
-			@$entry_pass = $entries[0][strtolower($ldap_settings['field_password'])][0];
+			if(empty($valid_email) || !is_array($valid_email) || empty($valid_email[0]->host) || $valid_email[0]->host=='host')
+				throw new Exception("No valid email address found.");
 			
-			switch($ldap_settings['field_password_type']) {
-				case 'md5':
-					$password = md5($password);
-					break;
-				case 'sha1':
-					$password = sha1($password);
-					break;
-			}
-			
-			if($entry_pass == $password) {
-				// Look up address by email
-				if(null == ($address = DAO_Address::lookupAddress($email))) {
-					$address_id = DAO_Address::create(array(
-						DAO_Address::EMAIL => $email,
-						DAO_Address::FIRST_NAME => @$entries[0][strtolower($ldap_settings['field_firstname'])][0],
-						DAO_Address::LAST_NAME => @$entries[0][strtolower($ldap_settings['field_lastname'])][0],
-					));
-					
-					if(null == ($address = DAO_Address::get($address_id)))
-						throw new Exception("Your account could not be created. Please try again later.");
-				}
-				
-				// See if the contact person exists or not
-				if(!empty($address->contact_person_id)) {
-					if(null != ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
-						$umsession->login($contact);
-						header("Location: " . $url_writer->write('', true));
-						exit;
-					}
-					
-				} else { // create
-					$fields = array(
-						DAO_ContactPerson::CREATED => time(),
-						DAO_ContactPerson::EMAIL_ID => $address->id,
-					);
-					$contact_id = DAO_ContactPerson::create($fields);
-					
-					if(null != ($contact = DAO_ContactPerson::get($contact_id))) {
-						DAO_Address::update($address->id, array(
-							DAO_Address::CONTACT_PERSON_ID => $contact->id,
-						));
-						
-						$umsession->login($contact);
-						header("Location: " . $url_writer->write('account', true));
-						exit;
-					}
-				}
-				
-			} else {
+			$email = $valid_email[0]->mailbox . '@' . $valid_email[0]->host; 
+
+			@$password = $entries[0][strtolower($ldap_settings['field_password'])][0];
+            
+            @$login = ldap_bind($ldap, $entries[0]['dn'], $password);
+
+            if(!$login)
 				throw new Exception("Invalid password.");
-			}
+	
+			// Look up address by email
+			if(null == ($address = DAO_Address::lookupAddress($email))) {
+				$address_id = DAO_Address::create(array(
+					DAO_Address::EMAIL => $email,
+					DAO_Address::FIRST_NAME => @$entries[0][strtolower($ldap_settings['field_firstname'])][0],
+					DAO_Address::LAST_NAME => @$entries[0][strtolower($ldap_settings['field_lastname'])][0],
+				));
 					
+				if(null == ($address = DAO_Address::get($address_id)))
+					throw new Exception("Your account could not be created. Please try again later.");
+			}
+				
+			// See if the contact person exists or not
+			if(!empty($address->contact_person_id)) {
+				if(null != ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
+					$umsession->login($contact);
+					header("Location: " . $url_writer->write('', true));
+					exit;
+				}
+					
+			} else { // create
+				$fields = array(
+					DAO_ContactPerson::CREATED => time(),
+					DAO_ContactPerson::EMAIL_ID => $address->id,
+				);
+				$contact_id = DAO_ContactPerson::create($fields);
+					
+				if(null != ($contact = DAO_ContactPerson::get($contact_id))) {
+					DAO_Address::update($address->id, array(
+						DAO_Address::CONTACT_PERSON_ID => $contact->id,
+					));
+						
+					$umsession->login($contact);
+					header("Location: " . $url_writer->write('account', true));
+					exit;
+				}
+			}
+				
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
 		}
