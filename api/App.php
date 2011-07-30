@@ -82,11 +82,7 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
             
 		@$login = ldap_bind($ldap, $entries[0]['dn'], $password);
 
-        if (!@ldap_bind($ldap, $entries[0]['dn'], $password)) {
-            fwrite($log,"ldap_errno = " . print_r(ldap_errno($ldap), TRUE) . "\n");
-        }
         @ldap_unbind($ldap);
-
 		
 		if(!$login)
 			return false;
