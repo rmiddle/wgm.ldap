@@ -71,18 +71,15 @@ fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
         @ldap_unbind($ldap);
 
 		@$count = intval($entries['count']);
-fwrite($log,"count = " . print_r($count, TRUE) . "\n");
 
 		if ($count != 1)
 			return false;
             
         $email = $entries[0][$ldap_settings['field_email']][0];
-fwrite($log,"email = " . print_r($email, TRUE) . "\n");
         
 		// Look up worker by email
 		if(null == ($address = DAO_AddressToWorker::getByAddress($email)))
 			return false;
-fwrite($log,"address = " . print_r($address, TRUE) . "\n");
 		
 		if(null == ($worker = DAO_Worker::get($address->worker_id)))
 			return false;
@@ -90,6 +87,11 @@ fwrite($log,"worker = " . print_r($worker, TRUE) . "\n");
             
 		@$login = ldap_bind($ldap, $entries[0]['dn'], $password);
 fwrite($log,"login = " . print_r($login, TRUE) . "\n");
+
+    if (!@ldap_bind($ldap, $entries[0]['dn'], $password)) {
+fwrite($log,"ldap_errno = " . print_r(ldap_errno($ldap), TRUE) . "\n");
+    }
+
 		
 		if(!$login)
 			return false;
