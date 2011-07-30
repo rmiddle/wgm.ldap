@@ -59,7 +59,7 @@ fwrite($log, "Starting logger\n");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
-//		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
+		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
 		if(!$login)
 			return false;
@@ -68,7 +68,7 @@ fwrite($log, "Starting logger\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 		@$entries = ldap_get_entries($ldap, $results);
 fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
-        @ldap_unbind($ldap);
+//        @ldap_unbind($ldap);
 
 		@$count = intval($entries['count']);
 
