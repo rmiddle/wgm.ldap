@@ -50,7 +50,6 @@ fwrite($log, "Starting logger\n");
 			'field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_firstname', ''),
 			'field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_lastname', ''),
 		);
-fwrite($log,"ldap_settings = " .  print_r($ldap_settings, TRUE) . "\n");
 		
 		@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
 		
@@ -59,20 +58,14 @@ fwrite($log,"ldap_settings = " .  print_r($ldap_settings, TRUE) . "\n");
 		
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-fwrite($log,"ldap = " . print_r($entries, TRUE) . "\n");
 		
 		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
-fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 		if(!$login)
 			return false;
 	
 		$query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
-fwrite($log,"auth = " . print_r($auth, TRUE) . "\n");
-fwrite($log,"password = " . print_r($password, TRUE) . "\n");
-fwrite($log,"query = " . print_r($query, TRUE) . "\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
-fwrite($log,"results = " . print_r($results, TRUE) . "\n");
 		@$entries = ldap_get_entries($ldap, $results);
 fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
         @ldap_unbind($ldap);
@@ -84,15 +77,19 @@ fwrite($log,"count = " . print_r($count, TRUE) . "\n");
 			return false;
             
         $email = $entries[0][$ldap_settings['field_email']][0];
+fwrite($log,"email = " . print_r($email, TRUE) . "\n");
         
 		// Look up worker by email
 		if(null == ($address = DAO_AddressToWorker::getByAddress($email)))
 			return false;
+fwrite($log,"address = " . print_r($address, TRUE) . "\n");
 		
 		if(null == ($worker = DAO_Worker::get($address->worker_id)))
 			return false;
+fwrite($log,"worker = " . print_r($worker, TRUE) . "\n");
             
 		@$login = ldap_bind($ldap, $entries[0]['dn'], $password);
+fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 		
 		if(!$login)
 			return false;
