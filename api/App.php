@@ -50,7 +50,7 @@ fwrite($log, "Starting logger\n");
 			'field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_firstname', ''),
 			'field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_lastname', ''),
 		);
-fwrite($log, print_r($ldap_settings, TRUE) . "\n");
+fwrite($log,"ldap_settings = " .  print_r($ldap_settings, TRUE) . "\n");
 		
 		@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
 		
@@ -59,19 +59,24 @@ fwrite($log, print_r($ldap_settings, TRUE) . "\n");
 		
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+fwrite("ldap = " . $log, print_r($entries, TRUE) . "\n");
 		
 		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
+fwrite("login = " . $log, print_r($login, TRUE) . "\n");
 		if(!$login)
 			return false;
 	
 		$query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
+fwrite("auth = " . $log, print_r($auth, TRUE) . "\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
+fwrite("results = " . $log, print_r($results, TRUE) . "\n");
 		@$entries = ldap_get_entries($ldap, $results);
+fwrite("entries = " . $log, print_r($entries, TRUE) . "\n");
         @ldap_unbind($ldap);
-fwrite($log, print_r($entries, TRUE) . "\n");
 
 		@$count = intval($entries['count']);
+fwrite("count = " . $log, print_r($count, TRUE) . "\n");
 
 		if ($count != 1)
 			return false;
