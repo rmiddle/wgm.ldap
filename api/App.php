@@ -69,6 +69,8 @@ fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 	
 		$query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
 fwrite($log,"auth = " . print_r($auth, TRUE) . "\n");
+fwrite($log,"password = " . print_r($password, TRUE) . "\n");
+fwrite($log,"query = " . print_r($query, TRUE) . "\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 fwrite($log,"results = " . print_r($results, TRUE) . "\n");
 		@$entries = ldap_get_entries($ldap, $results);
