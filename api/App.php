@@ -50,7 +50,7 @@ fwrite($log, "Starting logger\n");
 			'field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_firstname', ''),
 			'field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap', 'priv_auth_field_lastname', ''),
 		);
-fwrite($log, print_r($ldap_settings) . "\n");
+fwrite($log, print_r($ldap_settings, TRUE) . "\n");
 		
 		@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
 		
@@ -69,7 +69,7 @@ fwrite($log, print_r($ldap_settings) . "\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
 		@$entries = ldap_get_entries($ldap, $results);
         @ldap_unbind($ldap);
-fwrite($log, print_r($entries) . "\n");
+fwrite($log, print_r($entries, TRUE) . "\n");
 
 		@$count = intval($entries['count']);
 
