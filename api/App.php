@@ -287,17 +287,17 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			'priv_auth_username' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_username',''),
 			'priv_auth_password' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_password',''),
 			'priv_auth_context_search' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_context_search',''),
+			'priv_auth_field_auth' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_auth',''),
 			'priv_auth_field_email' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_email',''),
 			'priv_auth_field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_firstname',''),
 			'priv_auth_field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_lastname',''),
-			'priv_auth_field_password' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_password',''),
-			'priv_auth_field_password_type' => DevblocksPlatform::getPluginSetting('wgm.ldap','priv_auth_field_password_type',''),
 			
 			'pub_auth_host' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_host',''),
 			'pub_auth_port' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_port',389),
 			'pub_auth_username' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_username',''),
 			'pub_auth_password' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_password',''),
 			'pub_auth_context_search' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_context_search',''),
+			'pub_auth_field_auth' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_auth',''),
 			'pub_auth_field_email' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_email',''),
 			'pub_auth_field_firstname' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_firstname',''),
 			'pub_auth_field_lastname' => DevblocksPlatform::getPluginSetting('wgm.ldap','pub_auth_field_lastname',''),
@@ -323,11 +323,10 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			@$priv_auth_username = DevblocksPlatform::importGPC($_REQUEST['priv_auth_username'],'string','');
 			@$priv_auth_password = DevblocksPlatform::importGPC($_REQUEST['priv_auth_password'],'string','');
 			@$priv_auth_context_search = DevblocksPlatform::importGPC($_REQUEST['priv_auth_context_search'],'string','');
+			@$priv_auth_field_auth = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_auth'],'string','');
 			@$priv_auth_field_email = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_email'],'string','');
 			@$priv_auth_field_firstname = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_firstname'],'string','');
 			@$priv_auth_field_lastname = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_lastname'],'string','');
-			@$priv_auth_field_password = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_password'],'string','');
-			@$priv_auth_field_password_type = DevblocksPlatform::importGPC($_REQUEST['priv_auth_field_password_type'],'string','');
 			
 			if(!empty($priv_auth_host) && !empty($priv_auth_username) && !empty($priv_auth_password)) {
 				@$ldap = ldap_connect($priv_auth_host, $priv_auth_port);
@@ -357,11 +356,10 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_username',$priv_auth_username);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_password',$priv_auth_password);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_context_search',$priv_auth_context_search);
+			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_auth',$priv_auth_field_auth);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_email',$priv_auth_field_email);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_firstname',$priv_auth_field_firstname);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_lastname',$priv_auth_field_lastname);
-			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_password',$priv_auth_field_password);
-			DevblocksPlatform::setPluginSetting('wgm.ldap','priv_auth_field_password_type',$priv_auth_field_password_type);
 			
 			/*
 			 * Customer auth
@@ -372,11 +370,10 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			@$pub_auth_username = DevblocksPlatform::importGPC($_REQUEST['pub_auth_username'],'string','');
 			@$pub_auth_password = DevblocksPlatform::importGPC($_REQUEST['pub_auth_password'],'string','');
 			@$pub_auth_context_search = DevblocksPlatform::importGPC($_REQUEST['pub_auth_context_search'],'string','');
+			@$pub_auth_field_auth = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_auth'],'string','');
 			@$pub_auth_field_email = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_email'],'string','');
 			@$pub_auth_field_firstname = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_firstname'],'string','');
 			@$pub_auth_field_lastname = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_lastname'],'string','');
-			@$pub_auth_field_password = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_password'],'string','');
-			@$pub_auth_field_password_type = DevblocksPlatform::importGPC($_REQUEST['pub_auth_field_password_type'],'string','');
 
 			if(!empty($pub_auth_host) && !empty($pub_auth_username) && !empty($pub_auth_password)) {
 				@$ldap = ldap_connect($pub_auth_host, $pub_auth_port);
@@ -406,11 +403,10 @@ class WgmLdap_SetupSection extends Extension_PageSection {
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_username',$pub_auth_username);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_password',$pub_auth_password);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_context_search',$pub_auth_context_search);
+			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_auth',$pub_auth_field_auth);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_email',$pub_auth_field_email);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_firstname',$pub_auth_field_firstname);
 			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_lastname',$pub_auth_field_lastname);
-			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_password',$pub_auth_field_password);
-			DevblocksPlatform::setPluginSetting('wgm.ldap','pub_auth_field_password_type',$pub_auth_field_password_type);
 			
 		    echo json_encode(array('status'=>true,'message'=>'Saved!'));
 		    return;
