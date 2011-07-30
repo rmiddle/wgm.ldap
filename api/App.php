@@ -59,24 +59,24 @@ fwrite($log,"ldap_settings = " .  print_r($ldap_settings, TRUE) . "\n");
 		
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-fwrite($log,"ldap = " . $log, print_r($entries, TRUE) . "\n");
+fwrite($log,"ldap = " . print_r($entries, TRUE) . "\n");
 		
 		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
-fwrite($log,"login = " . $log, print_r($login, TRUE) . "\n");
+fwrite($log,"login = " . print_r($login, TRUE) . "\n");
 		if(!$login)
 			return false;
 	
 		$query = sprintf("(%s=%s)", $ldap_settings['field_auth'], $auth);
-fwrite($log,"auth = " . $log, print_r($auth, TRUE) . "\n");
+fwrite($log,"auth = " . print_r($auth, TRUE) . "\n");
 		@$results = ldap_search($ldap, $ldap_settings['context_search'], $query);
-fwrite($log,"results = " . $log, print_r($results, TRUE) . "\n");
+fwrite($log,"results = " . print_r($results, TRUE) . "\n");
 		@$entries = ldap_get_entries($ldap, $results);
-fwrite($log,"entries = " . $log, print_r($entries, TRUE) . "\n");
+fwrite($log,"entries = " . print_r($entries, TRUE) . "\n");
         @ldap_unbind($ldap);
 
 		@$count = intval($entries['count']);
-fwrite($log,"count = " . $log, print_r($count, TRUE) . "\n");
+fwrite($log,"count = " . print_r($count, TRUE) . "\n");
 
 		if ($count != 1)
 			return false;
