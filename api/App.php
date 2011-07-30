@@ -59,7 +59,7 @@ fwrite($log, "Starting logger\n");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
-		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
+//		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
 		if(!$login)
 			return false;
