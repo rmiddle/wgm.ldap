@@ -17,8 +17,8 @@
 
 	<table cellpadding="0" cellspacing="2">
 	<tr>
-		<td align="right" valign="middle">{'ldap.common.login'|devblocks_translate|capitalize}:</td>
-		<td><input type="text" name="auth" size="45" class="input_email"></td>
+		<td align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
+		<td><input type="text" name="email" size="45" class="input_email"></td>
 	</tr>
 	<tr>
 		<td align="right" valign="middle">{'common.password'|devblocks_translate|capitalize}:</td>

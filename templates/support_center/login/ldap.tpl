@@ -8,8 +8,8 @@
 <fieldset>
 	<legend>Sign on using LDAP</legend>
 	
-	<b>Login:</b><br>
-	<input type="text" name="login" size="45"><br>
+	<b>Email:</b><br>
+	<input type="text" name="email" size="45"><br>
 	
 	<b>Password:</b><br>
 	<input type="password" name="password" size="45" autocomplete="off"><br>
