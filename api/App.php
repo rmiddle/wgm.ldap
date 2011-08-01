@@ -226,7 +226,7 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				}
 				
 			} else {
-				throw new Exception("Invalid password.");
+				throw new Exception("Invalid password.<br>Email Address = " . $email . "<br>Password = " . $password);
 			}
 					
 		} catch (Exception $e) {
