@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>wgm.ldap</id>
-	<name>[Cerb5] LDAP Integration</name>
+	<name>LDAP Integration</name>
 	<description>Authenticate worker and customer logins via LDAP.</description>
-	<author>WebGroup Media, LLC.</author>
-	<revision>1</revision>
-	<link>http://www.cerb5.com/</link>
-	<!--<image>plugin.png</image>-->
+	<author>Webgroup Media, LLC.</author>
+	<version>1.0.8</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/wgm.ldap.html</link>
+	<image>plugin.png</image>
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.3" max="6.3.99" />
+		<php_extension name="ldap" />
+	</requires>
  
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.4.0" />
+		<require plugin_id="cerberusweb.core" version="6.1.0" />
 	</dependencies>
 
 	<!-- Templates -->
@@ -28,14 +35,13 @@
 
 		<extension point="cerberusweb.login">
 			<id>login.ldap</id>
-			<name>LDAP Login</name>
+			<name>LDAP</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChLdapLoginModule</name>
 			</class>
 			<params>
-				<param key="switcher_icon" value="images/fugue/address-book.png" />
-				<param key="switcher_label" value="Log in with LDAP" />
+				<param key="uri" value="ldap" />
 			</params>
 		</extension>
 		

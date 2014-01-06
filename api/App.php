@@ -1,7 +1,7 @@
 <?php
 if(class_exists('Extension_LoginAuthenticator',true)):
 class ChLdapLoginModule extends Extension_LoginAuthenticator {
-	function renderLoginForm() {
+	function render() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		
@@ -10,20 +10,11 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		// Must be a valid page controller
-		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
-		if(is_array($redir_path) && isset($redir_path[0]) && CerberusApplication::getPageManifestByUri($redir_path[0]))
-			$tpl->assign('original_path', implode('/',$redir_path));
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		$tpl->assign('email', $email);
 		
-		switch(array_shift($stack)) {
-			case 'too_many':
-				@$secs = array_shift($stack);
-				$tpl->assign('error', sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($secs,true),'+')));
-				break;
-			case 'failed':
-				$tpl->assign('error', 'Login failed.');
-				break;
-		}
+		@$error = DevblocksPlatform::importGPC($_REQUEST['error'],'string','');
+		$tpl->assign('error', $error);
 		
 		$tpl->display('devblocks:wgm.ldap::login/login_ldap.tpl');
 	}
@@ -36,11 +27,20 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		if(!extension_loaded('ldap'))
 			return false;
 		
+		if(empty($email) || empty($password))
+			return false;
+		
 		// Look up worker by email
 		if(null == ($address = DAO_AddressToWorker::getByAddress($email)))
 			return false;
 		
 		if(null == ($worker = DAO_Worker::get($address->worker_id)))
+			return false;
+
+		if($worker->auth_extension_id != $this->manifest->id)
+			return false;
+		
+		if($worker->is_disabled)
 			return false;
 		
 		$ldap_settings = array(
@@ -81,13 +81,8 @@ class ChLdapLoginModule extends Extension_LoginAuthenticator {
 		$dn = $entries[0]['dn'];
 		
 		if(@ldap_bind($ldap, $dn, $password)) {
-			$session = DevblocksPlatform::getSessionService();
-			$visit = new CerberusVisit();
-			$visit->setWorker($worker);
-			$session->setVisit($visit);
-			
 			@ldap_unbind($ldap);
-			return true;
+			return $worker;
 		}
 		
 		@ldap_unbind($ldap);
@@ -111,7 +106,7 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				$tpl->display("devblocks:wgm.ldap:portal_".ChPortalHelper::getCode().":support_center/login/ldap.tpl");
 				break;
 		}
-	}	
+	}
 	
 	function authenticateAction() {
 		$umsession = ChPortalHelper::getSession();
@@ -143,7 +138,7 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(empty($valid_email) || !is_array($valid_email) || empty($valid_email[0]->host) || $valid_email[0]->host=='host')
 				throw new Exception("Please provide a valid email address.");
 			
-			$email = $valid_email[0]->mailbox . '@' . $valid_email[0]->host; 
+			$email = $valid_email[0]->mailbox . '@' . $valid_email[0]->host;
 
 			// LDAP
 			$ldap_settings = array(
