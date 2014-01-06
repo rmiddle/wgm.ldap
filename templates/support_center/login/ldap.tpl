@@ -1,5 +1,4 @@
 <form action="{devblocks_url}c=login&a=authenticate{/devblocks_url}" method="post" id="loginLDAP">
-<input type="hidden" name="original_path" value="{$original_path}">
 
 {if !empty($error)}
 <div class="error">{$error}</div>
@@ -15,7 +14,7 @@
 	<input type="password" name="password" size="45" autocomplete="off"><br>
 	
 	<br>
-	<button type="submit">{$translate->_('header.signon')|capitalize}</button>
+	<button type="submit">{'header.signon'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 
